@@ -1,7 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import { Karta, Napoveda, Radek, Tlacitko } from "./Ui";
-import { formatBytes, PORTAL_LIMITS } from "@/lib/portal/spec";
+import {
+  formatBytes,
+  PORTAL_LIMITS,
+  STRUKTURA_DOKUMENTACE,
+  type SlozkaId,
+} from "@/lib/portal/spec";
 import type { Rozbor } from "@/lib/pdf/inspect";
 import { profilById, type ProfilId } from "@/lib/gs/profiles";
 
@@ -15,6 +21,9 @@ interface Props {
   vystup: { bytes: Uint8Array; nazev: string; rozbor: Rozbor } | null;
   onSpustit: () => void;
   onStahnout: () => void;
+  onPridatDoBalicku: (slozka: SlozkaId) => void;
+  /** Tento výstup už v balíčku je. */
+  jeVBalicku: boolean;
 }
 
 export function KrokKontrola({
@@ -26,8 +35,11 @@ export function KrokKontrola({
   vystup,
   onSpustit,
   onStahnout,
+  onPridatDoBalicku,
+  jeVBalicku,
 }: Props) {
   const p = profilById(profil);
+  const [slozka, setSlozka] = useState<SlozkaId>("D");
 
   if (!vystup) {
     return (
@@ -86,7 +98,12 @@ export function KrokKontrola({
             </p>
             <p className="mt-1 text-xs" style={{ color: "var(--tlumeny)" }}>
               {vystup.nazev} · {r.pocetStran} str. · {formatBytes(velikost)}
-              {r.pdfaPart ? ` · PDF/A-${r.pdfaPart}${r.pdfaConformance ?? ""}` : ""}
+              {r.strankyMm[0]
+                ? ` · ${r.strankyMm[0].sirka}×${r.strankyMm[0].vyska} mm`
+                : ""}
+              {r.pdfaPart
+                ? ` · PDF/A-${r.pdfaPart}${r.pdfaConformance ?? ""}`
+                : ""}
             </p>
           </div>
           <Tlacitko varianta="hlavni" onClick={onStahnout}>
@@ -112,6 +129,39 @@ export function KrokKontrola({
             }
           />
         </ul>
+      </Karta>
+
+      <Karta>
+        <p className="text-sm font-semibold">Zařadit do balíčku dokumentace</p>
+        <Napoveda>
+          Vyber, kterou částí dokumentace tento soubor je. Až budeš mít všechny
+          hotové, stáhneš si v kroku Balíček celou strukturu A–E najednou.
+        </Napoveda>
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <select
+            value={slozka}
+            onChange={(e) => setSlozka(e.target.value as SlozkaId)}
+            className="rounded-md border px-3 py-2 text-sm"
+            style={{
+              borderColor: "var(--linka)",
+              background: "var(--panel)",
+              color: "var(--text)",
+            }}
+          >
+            {STRUKTURA_DOKUMENTACE.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.id} — {s.nazev}
+              </option>
+            ))}
+          </select>
+          <Tlacitko
+            onClick={() => onPridatDoBalicku(slozka)}
+            disabled={jeVBalicku}
+            title={jeVBalicku ? "Tento soubor už v balíčku je" : undefined}
+          >
+            {jeVBalicku ? "V balíčku ✓" : "Přidat do balíčku"}
+          </Tlacitko>
+        </div>
       </Karta>
 
       {zmenaMeritka.length > 0 && (

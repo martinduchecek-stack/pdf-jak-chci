@@ -17,17 +17,21 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Napoveda } from "./Ui";
+import { OrezEditor } from "./OrezEditor";
 import type { Stranka, Zdroj } from "@/lib/pdf/compose";
+import type { Rozbor } from "@/lib/pdf/inspect";
 import { nahled, otevrit } from "@/lib/pdf/render";
 
 interface Props {
   zdroje: Zdroj[];
   stranky: Stranka[];
+  rozbory: Record<string, Rozbor>;
   onZmena: (s: Stranka[]) => void;
 }
 
-export function KrokStranky({ zdroje, stranky, onZmena }: Props) {
+export function KrokStranky({ zdroje, stranky, rozbory, onZmena }: Props) {
   const [nahledy, setNahledy] = useState<Record<string, string>>({});
+  const [orezId, setOrezId] = useState<string | null>(null);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
   );
@@ -82,6 +86,18 @@ export function KrokStranky({ zdroje, stranky, onZmena }: Props) {
     onZmena(stranky.filter((s) => s.id !== id));
   }
 
+  function nastavitOrez(id: string, orez: Stranka["orez"]) {
+    onZmena(stranky.map((s) => (s.id === id ? { ...s, orez } : s)));
+  }
+
+  const orezStranka = stranky.find((s) => s.id === orezId);
+  const orezZdroj = orezStranka
+    ? zdroje.find((z) => z.id === orezStranka.zdrojId)
+    : undefined;
+  const orezRozmer = orezStranka
+    ? rozbory[orezStranka.zdrojId]?.strankyMm[orezStranka.indexVeZdroji]
+    : undefined;
+
   if (!stranky.length) {
     return <Napoveda>Zatím nemáš nahrané žádné stránky.</Napoveda>;
   }
@@ -112,11 +128,22 @@ export function KrokStranky({ zdroje, stranky, onZmena }: Props) {
                 zdroj={zdroje.find((z) => z.id === s.zdrojId)}
                 onOtocit={() => otocit(s.id)}
                 onSmazat={() => smazat(s.id)}
+                onOrez={() => setOrezId(s.id)}
               />
             ))}
           </div>
         </SortableContext>
       </DndContext>
+
+      {orezStranka && orezZdroj && (
+        <OrezEditor
+          stranka={orezStranka}
+          zdroj={orezZdroj}
+          rozmerMm={orezRozmer}
+          onUlozit={(o) => nastavitOrez(orezStranka.id, o)}
+          onZavrit={() => setOrezId(null)}
+        />
+      )}
     </div>
   );
 }
@@ -128,6 +155,7 @@ function Dlazdice({
   zdroj,
   onOtocit,
   onSmazat,
+  onOrez,
 }: {
   stranka: Stranka;
   poradi: number;
@@ -135,6 +163,7 @@ function Dlazdice({
   zdroj?: Zdroj;
   onOtocit: () => void;
   onSmazat: () => void;
+  onOrez: () => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: stranka.id });
@@ -201,11 +230,22 @@ function Dlazdice({
         </button>
         <button
           type="button"
+          onClick={onOrez}
+          className="flex-1 rounded border px-2 py-1 text-xs hover:opacity-80"
+          style={{
+            borderColor: stranka.orez ? "var(--modra)" : "var(--linka)",
+            color: stranka.orez ? "var(--modra)" : undefined,
+          }}
+        >
+          {stranka.orez ? "Ořez ✓" : "Ořez"}
+        </button>
+        <button
+          type="button"
           onClick={onSmazat}
           className="rounded border px-2 py-1 text-xs hover:opacity-80"
           style={{ borderColor: "var(--linka)", color: "var(--cervena)" }}
         >
-          Smazat
+          ✕
         </button>
       </div>
     </div>

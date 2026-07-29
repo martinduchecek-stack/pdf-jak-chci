@@ -40,16 +40,29 @@ function getWorker(): Worker {
   return worker;
 }
 
+export interface VolbyPrevodu {
+  /**
+   * Ořez se má do výstupu propsat natvrdo.
+   *
+   * Bez `-dUseCropBox` nechá Ghostscript MediaBox v původní velikosti a ořez
+   * uloží jen jako CropBox — oříznutý obsah tedy v souboru fyzicky zůstane
+   * a putoval by na úřad i s tím, co uživatel odstranil. S přepínačem se
+   * MediaBox zmenší na ořez a zbytek se skutečně zahodí.
+   */
+  orez?: boolean;
+}
+
 /** Převede PDF podle zvoleného profilu. Běží celé v prohlížeči. */
 export function prevest(
   data: Uint8Array,
   profil: Profil,
+  volby: VolbyPrevodu = {},
 ): Promise<VysledekPrevodu> {
   const id = dalsiId++;
   const req: GsRequest = {
     id,
     data,
-    args: profil.gsArgs,
+    args: volby.orez ? [...profil.gsArgs, "-dUseCropBox"] : profil.gsArgs,
     // OutputIntent má smysl jen u PDF/A profilů.
     pdfaDef: profil.pdfaPart ? pdfaDefPs() : undefined,
   };

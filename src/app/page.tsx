@@ -6,7 +6,11 @@ import { KrokStranky } from "@/components/KrokStranky";
 import { KrokFormat } from "@/components/KrokFormat";
 import { KrokProfil } from "@/components/KrokProfil";
 import { KrokKontrola } from "@/components/KrokKontrola";
+import { KrokBalicek } from "@/components/KrokBalicek";
 import { Tlacitko } from "@/components/Ui";
+import type { PolozkaBalicku } from "@/lib/portal/balicek";
+import type { SlozkaId } from "@/lib/portal/spec";
+import { noveId } from "@/lib/stav";
 import {
   slozit,
   ztratiVrstvy,
@@ -35,6 +39,7 @@ export default function Domu() {
     nazev: string;
     rozbor: Rozbor;
   } | null>(null);
+  const [balicek, setBalicek] = useState<PolozkaBalicku[]>([]);
 
   // Ghostscript načteme na pozadí, jakmile má uživatel co převádět.
   useEffect(() => {
@@ -71,7 +76,10 @@ export default function Domu() {
       setZmenaMeritka(slozeno.zmenaMeritka);
 
       const p = profilById(profil);
-      const { data } = await prevest(slozeno.bytes, p);
+      // -dUseCropBox posíláme jen při ořezu — jinak by Ghostscript zbytečně
+      // přepsal MediaBox u stránek, kterých se ořez netýká.
+      const jeOrez = stranky.some((s) => s.orez);
+      const { data } = await prevest(slozeno.bytes, p, { orez: jeOrez });
 
       const zaklad = zdroje[0]?.nazev.replace(/\.pdf$/i, "") ?? "dokumentace";
       const pripona = p.pdfaPart ? `_PDFA-${p.pdfaPart}b` : "_upraveno";
@@ -87,6 +95,21 @@ export default function Domu() {
     } finally {
       setBezi(false);
     }
+  }
+
+  function pridatDoBalicku(slozka: SlozkaId) {
+    if (!vystup) return;
+    const r = vystup.rozbor;
+    setBalicek((p) => [
+      ...p,
+      {
+        id: noveId("bal"),
+        nazev: vystup.nazev,
+        bytes: vystup.bytes,
+        slozka,
+        jePdfa3: r.pdfaPart === "3" && r.maOutputIntent,
+      },
+    ]);
   }
 
   function stahnout() {
@@ -120,7 +143,10 @@ export default function Domu() {
       <nav className="mt-6 flex flex-wrap gap-2">
         {KROKY.map((k) => {
           const aktivni = k.id === krok;
-          const dostupny = k.id === 1 || stranky.length > 0;
+          // Balíček zůstává přístupný i po odebrání zdrojů — hotové soubory
+          // v něm nemají zmizet jen proto, že uživatel začal další dokument.
+          const dostupny =
+            k.id === 1 || stranky.length > 0 || (k.id === 6 && balicek.length > 0);
           return (
             <button
               key={k.id}
@@ -157,6 +183,7 @@ export default function Domu() {
           <KrokStranky
             zdroje={zdroje}
             stranky={stranky}
+            rozbory={rozbory}
             onZmena={(s) => {
               setStranky(s);
               setVystup(null);
@@ -191,6 +218,18 @@ export default function Domu() {
             vystup={vystup}
             onSpustit={spustit}
             onStahnout={stahnout}
+            onPridatDoBalicku={pridatDoBalicku}
+            jeVBalicku={
+              !!vystup && balicek.some((b) => b.nazev === vystup.nazev)
+            }
+          />
+        )}
+        {krok === 6 && (
+          <KrokBalicek
+            polozky={balicek}
+            onOdebrat={(id) =>
+              setBalicek((p) => p.filter((b) => b.id !== id))
+            }
           />
         )}
       </section>

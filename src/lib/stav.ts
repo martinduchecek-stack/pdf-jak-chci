@@ -8,6 +8,7 @@ export const KROKY = [
   { id: 3, nazev: "Formát listu", popis: "Papír a měřítko" },
   { id: 4, nazev: "Cílový formát", popis: "PDF/A-3 pro portál" },
   { id: 5, nazev: "Kontrola", popis: "Před podáním" },
+  { id: 6, nazev: "Balíček", popis: "Struktura A–E pro portál" },
 ] as const;
 
 export interface StavAplikace {

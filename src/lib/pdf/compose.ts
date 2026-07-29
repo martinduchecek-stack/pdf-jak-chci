@@ -142,8 +142,18 @@ export async function slozit(
 
     // Přesazení na jiný formát listu: původní stránku vložíme jako objekt
     // a vykreslíme ji na nový list.
+    //
+    // embedPage() bez ohraničení bere MediaBox a ořez by tiše zahodil, takže
+    // hranice předáváme výslovně. getCropBox() vrací při chybějícím ořezu
+    // rovnou MediaBox, proto to funguje i pro needitované stránky.
+    const cb = kopie.getCropBox();
     const [cw, ch] = rozmeryBodu(s.format.format, s.format.orientace);
-    const vlozena = await cil.embedPage(kopie);
+    const vlozena = await cil.embedPage(kopie, {
+      left: cb.x,
+      bottom: cb.y,
+      right: cb.x + cb.width,
+      top: cb.y + cb.height,
+    });
     const pw = vlozena.width;
     const ph = vlozena.height;
 
