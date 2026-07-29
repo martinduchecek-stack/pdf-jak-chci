@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# generováno z node_modules pomocí `npm run sync-wasm` (běží i jako postinstall)
+/public/gs.wasm
+/public/gs.js
+/public/pdf.worker.min.mjs

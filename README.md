@@ -1,36 +1,71 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Pdf jak chci
 
-## Getting Started
+Webová aplikace pro převod PDF do **PDF/A-3** požadovaného Portálem stavebníka,
+pro skládání dokumentace z více zdrojů a pro kontrolu souboru před podáním.
 
-First, run the development server:
+Všechno se počítá v prohlížeči — **žádný soubor se nikam nenahrává**. Projektová
+dokumentace klientů tak neopustí počítač uživatele.
+
+## Co aplikace řeší
+
+Archicad (přes PDFTron PDFNet) exportuje obyčejné PDF 1.4 bez XMP metadat
+a bez OutputIntent. Takový soubor **není PDF/A** a portál ho odmítne.
+
+Častá past: Ghostscript spuštěný s `-sColorConversionStrategy=UseDeviceIndependentColor`
+PDF/A režim tiše zahodí („reverting to normal output"), ale XMP metadata
+s `pdfaid:part` ve výstupu nechá. Vznikne soubor, který se za PDF/A vydává,
+ale OutputIntent nemá — validátor ho odmítne. Správně musí být
+`-sColorConversionStrategy=RGB` **a** `PDFA_def.ps` vkládající OutputIntent.
+
+## Právní opora
+
+| Součást | Formát | Zdroj |
+|---|---|---|
+| Výkresy, ostatní dokumenty | PDF/A-3 | vyhl. č. 190/2024 Sb., příl. č. 4 |
+| Průvodní list (strojově čitelný) | XML | tamtéž |
+| Elektronická dokumentace jako celek | BPP | tamtéž |
+| Zákaz maker, skriptů, spustitelného kódu | — | vyhl. č. 190/2024 Sb., příl. č. 3 |
+
+Limity portálu (Uživatelská dokumentace Portálu stavební správy v1.13):
+
+- příloha žádosti: **pouze PDF/A**, max. 100 MB / soubor, 1 GB / žádost
+- dokumentace: 10 GB celkem, max. 50 000 souborů, limit na jeden soubor není
+- struktura A–E je pevná a nahrává se **vždy celá**
+
+## Co aplikace neřeší
+
+- **Autorizační razítko.** Elektronickou PD je nutné opatřit kvalifikovaným
+  podpisem s kvalifikovaným časovým razítkem (§ 13 odst. 3 písm. b
+  autorizačního zákona). Dělá se to až po převodu, jinak by úprava podpis
+  zneplatnila.
+- **Plnou validaci podle ISO 19005.** Kontrola pokrývá nejčastější příčiny
+  odmítnutí (chybějící OutputIntent, nevložená písma, šifrování, JavaScript),
+  ale definitivní verdikt dá veraPDF nebo samotný portál.
+- **Konverzi CAD formátů.** DWG/DGN se do prohlížeče nedostane — z Archicadu
+  se tiskne do PDF a teprve to jde sem.
+
+## Technické poznámky
+
+- **Ghostscript ve WASM** (`@okathira/ghostpdl-wasm`, ~15 MB) běží ve Web
+  Workeru, aby se UI nezaseklo. Načítá se až při prvním převodu.
+- **ICC profil** se bere z ROM filesystému Ghostscriptu
+  (`%rom%iccprofiles/srgb.icc`), takže se nedistribuuje žádný externí soubor.
+- **Ghostscript umí jen konformitu úrovně B** (PDF/A-1b/2b/3b). Úroveň „u"
+  ani „a" přes `pdfwrite` dosáhnout nelze, proto je aplikace nenabízí.
+- **Přeskládání stránek jde přes pdf-lib**, které nepřenáší `/OCProperties` —
+  vrstvy výkresu se tím ztratí. Když se s jediným souborem nic nemění,
+  aplikace pdf-lib obejde a pošle Ghostscriptu původní bajty.
+
+## Vývoj
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`npm install` spustí `sync-wasm`, který zkopíruje `gs.wasm` a `gs.js`
+z `node_modules` do `public/`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run build
+```

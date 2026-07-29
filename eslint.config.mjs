@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Ghostscript a worker pdf.js se sem kopírují z node_modules — cizí
+    // minifikovaný kód nemá smysl kontrolovat.
+    "public/**",
   ]),
 ]);
 
