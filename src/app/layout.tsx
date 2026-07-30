@@ -7,7 +7,7 @@ const inter = Inter({ variable: "--font-inter", subsets: ["latin", "latin-ext"] 
 export const metadata: Metadata = {
   title: "Pdf jak chci",
   description:
-    "Převod PDF do PDF/A-3 pro Portál stavebníka, skládání a úpravy dokumentace. Vše běží v prohlížeči — soubory neopustí tvůj počítač.",
+    "Převod PDF do PDF/A-3 pro Portál stavebníka, dávkově i po jednom. Vše běží v prohlížeči — soubory neopustí tvůj počítač.",
 };
 
 export default function RootLayout({

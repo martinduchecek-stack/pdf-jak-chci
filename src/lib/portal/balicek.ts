@@ -20,8 +20,8 @@ export interface PolozkaBalicku {
  * Sestaví ZIP ve struktuře, kterou portál u dokumentace vyžaduje.
  *
  * Portál sám archiv nepřijímá — soubory se do jeho formuláře nahrávají po
- * složkách. Balíček slouží k tomu, aby bylo jasné, co kam patří, a aby se na
- * nic nezapomnělo: dokumentace se nahrává vždy celá.
+ * složkách, výkres po výkresu. Balíček slouží k tomu, aby bylo jasné, co kam
+ * patří, a aby se na nic nezapomnělo: dokumentace se nahrává vždy celá.
  */
 export async function sestavitZip(
   polozky: PolozkaBalicku[],
@@ -70,7 +70,8 @@ function prehled(polozky: PolozkaBalicku[]): string {
     "vytvořeno aplikací Pdf jak chci",
     "",
     "Struktura odpovídá členění, které portál vyžaduje (části A–E).",
-    "Dokumentace se do portálu nahrává VŽDY celá, i když se mění jediný dokument.",
+    "Na portál se soubory vkládají jednotlivě — archiv samotný nepřijímá.",
+    "Dokumentace se nahrává VŽDY celá, i když se mění jediný dokument.",
     "",
     "Obsah:",
   ];

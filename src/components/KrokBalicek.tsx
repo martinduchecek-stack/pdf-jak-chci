@@ -49,9 +49,9 @@ export function KrokBalicek({ polozky, onOdebrat }: Props) {
       <Karta>
         <p className="text-sm font-semibold">Balíček je prázdný</p>
         <Napoveda>
-          V kroku Kontrola u každého hotového souboru vyber, do které části
-          dokumentace patří, a přidej ho sem. Až budeš mít všechno, stáhneš si
-          celý balíček ve struktuře, kterou portál vyžaduje.
+          V převodu dávky nebo v kroku Kontrola vyber, do které části
+          dokumentace soubory patří, a přidej je sem. Balíček pak stáhneš ve
+          struktuře, kterou portál vyžaduje.
         </Napoveda>
       </Karta>
     );
@@ -81,6 +81,10 @@ export function KrokBalicek({ polozky, onOdebrat }: Props) {
             {chyba}
           </p>
         )}
+        <Napoveda>
+          Portál archiv nepřijímá — soubory se do něj vkládají jednotlivě.
+          Balíček je pomůcka, aby bylo jasné, co kam patří.
+        </Napoveda>
       </Karta>
 
       {vadne > 0 && (

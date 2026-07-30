@@ -98,8 +98,8 @@ export function KrokZdroje({ zdroje, rozbory, onPridat, onOdebrat }: Props) {
           Přetáhni sem PDF nebo obrázky
         </p>
         <Napoveda>
-          Soubory se nikam nenahrávají — všechno se zpracuje přímo v tomto
-          prohlížeči.
+          Můžeš najednou i desítky souborů. Nikam se nenahrávají — všechno se
+          zpracuje přímo v tomto prohlížeči.
         </Napoveda>
         <div className="mt-4">
           <Tlacitko varianta="hlavni" onClick={() => input.current?.click()}>

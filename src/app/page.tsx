@@ -137,12 +137,13 @@ export default function Domu() {
 
   function pridatVysledekDoBalicku(v: VysledekDavky, slozka: SlozkaId) {
     if (!v.bytes) return;
+    const bytes = v.bytes;
     setBalicek((p) => [
       ...p,
       {
         id: noveId("bal"),
         nazev: v.nazev,
-        bytes: v.bytes!,
+        bytes,
         slozka,
         zdrojId: v.zdrojId,
         jePdfa3: v.rozbor?.pdfaPart === "3" && !!v.rozbor?.maOutputIntent,
@@ -186,9 +187,8 @@ export default function Domu() {
         <div className="relative">
           <h1 className="text-2xl font-bold tracking-tight">Pdf jak chci</h1>
           <p className="mt-1 text-sm" style={{ color: "var(--tlumeny)" }}>
-            Převod do PDF/A-3 pro Portál stavebníka, skládání a úpravy
-            dokumentace. Všechno se počítá v tomto prohlížeči — soubory se nikam
-            nenahrávají.
+            Převod do PDF/A-3 pro Portál stavebníka — dávkově i po jednom.
+            Všechno se počítá v tomto prohlížeči, soubory se nikam nenahrávají.
           </p>
         </div>
       </header>
@@ -239,7 +239,7 @@ export default function Domu() {
           // Balíček zůstává přístupný i po odebrání zdrojů — hotové soubory
           // v něm nemají zmizet jen proto, že uživatel začal další dokument.
           const dostupny =
-            k.id === 1 || stranky.length > 0 || (k.id === 6 && balicek.length > 0);
+            k.id === 1 || zdroje.length > 0 || (k.id === 6 && balicek.length > 0);
           return (
             <button
               key={k.id}
@@ -298,6 +298,7 @@ export default function Domu() {
             onZmena={(p) => {
               setProfil(p);
               setVystup(null);
+              setDavka([]);
             }}
           />
         )}
@@ -353,8 +354,8 @@ export default function Domu() {
           <Tlacitko
             varianta="hlavni"
             onClick={() => setKrok(kroky[poradiKroku + 1].id)}
-            disabled={stranky.length === 0}
-            title={stranky.length ? undefined : "Nejdřív nahraj soubor"}
+            disabled={zdroje.length === 0}
+            title={zdroje.length ? undefined : "Nejdřív nahraj soubor"}
           >
             Pokračovat
           </Tlacitko>
