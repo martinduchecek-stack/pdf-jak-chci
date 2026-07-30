@@ -1,16 +1,22 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { KrokZdroje } from "@/components/KrokZdroje";
 import { KrokStranky } from "@/components/KrokStranky";
 import { KrokFormat } from "@/components/KrokFormat";
 import { KrokProfil } from "@/components/KrokProfil";
 import { KrokKontrola } from "@/components/KrokKontrola";
 import { KrokBalicek } from "@/components/KrokBalicek";
+import { KrokDavka } from "@/components/KrokDavka";
 import { Tlacitko } from "@/components/Ui";
 import type { PolozkaBalicku } from "@/lib/portal/balicek";
 import type { SlozkaId } from "@/lib/portal/spec";
-import { noveId } from "@/lib/stav";
+import {
+  prevestDavku,
+  type PrubehDavky,
+  type VysledekDavky,
+} from "@/lib/portal/davka";
+import { krokyProRezim, noveId, type Rezim } from "@/lib/stav";
 import {
   slozit,
   ztratiVrstvy,
@@ -21,9 +27,11 @@ import { rozeber, type Rozbor } from "@/lib/pdf/inspect";
 import { zapomenout } from "@/lib/pdf/render";
 import { predehrat, prevest } from "@/lib/gs/client";
 import { profilById, type ProfilId } from "@/lib/gs/profiles";
-import { KROKY } from "@/lib/stav";
 
 export default function Domu() {
+  // Dávka je výchozí: na portál se výkresy vkládají jednotlivě, takže
+  // slučování do jednoho PDF je ten vzácnější případ.
+  const [rezim, setRezim] = useState<Rezim>("davka");
   const [krok, setKrok] = useState(1);
   const [zdroje, setZdroje] = useState<Zdroj[]>([]);
   const [stranky, setStranky] = useState<Stranka[]>([]);
@@ -40,6 +48,15 @@ export default function Domu() {
     rozbor: Rozbor;
   } | null>(null);
   const [balicek, setBalicek] = useState<PolozkaBalicku[]>([]);
+  const [davka, setDavka] = useState<VysledekDavky[]>([]);
+  const [prubeh, setPrubeh] = useState<PrubehDavky | null>(null);
+  const zastavitRef = useRef(false);
+
+  const kroky = krokyProRezim(rezim);
+  const poradiKroku = Math.max(
+    0,
+    kroky.findIndex((k) => k.id === krok),
+  );
 
   // Ghostscript načteme na pozadí, jakmile má uživatel co převádět.
   useEffect(() => {
@@ -97,6 +114,42 @@ export default function Domu() {
     }
   }
 
+  async function spustitDavku() {
+    setBezi(true);
+    setChyba(null);
+    setDavka([]);
+    zastavitRef.current = false;
+    try {
+      const vysledky = await prevestDavku(
+        zdroje,
+        profilById(profil),
+        setPrubeh,
+        () => zastavitRef.current,
+      );
+      setDavka(vysledky);
+    } catch (e) {
+      setChyba(e instanceof Error ? e.message : String(e));
+    } finally {
+      setBezi(false);
+      setPrubeh(null);
+    }
+  }
+
+  function pridatVysledekDoBalicku(v: VysledekDavky, slozka: SlozkaId) {
+    if (!v.bytes) return;
+    setBalicek((p) => [
+      ...p,
+      {
+        id: noveId("bal"),
+        nazev: v.nazev,
+        bytes: v.bytes!,
+        slozka,
+        zdrojId: v.zdrojId,
+        jePdfa3: v.rozbor?.pdfaPart === "3" && !!v.rozbor?.maOutputIntent,
+      },
+    ]);
+  }
+
   function pridatDoBalicku(slozka: SlozkaId) {
     if (!vystup) return;
     const r = vystup.rozbor;
@@ -140,8 +193,48 @@ export default function Domu() {
         </div>
       </header>
 
-      <nav className="mt-6 flex flex-wrap gap-2">
-        {KROKY.map((k) => {
+      <div className="mt-6 flex flex-wrap gap-2">
+        {(
+          [
+            {
+              id: "davka" as Rezim,
+              nazev: "Dávka souborů",
+              popis: "Každé PDF zvlášť — na výstupu stejný počet souborů",
+            },
+            {
+              id: "dokument" as Rezim,
+              nazev: "Jeden dokument",
+              popis: "Spojit zdroje, přeskládat stránky, ořezat",
+            },
+          ] as const
+        ).map((r) => (
+          <button
+            key={r.id}
+            type="button"
+            onClick={() => {
+              setRezim(r.id);
+              setKrok(1);
+              setVystup(null);
+              setDavka([]);
+            }}
+            className="min-w-56 flex-1 rounded-lg border p-3 text-left"
+            style={{
+              borderColor: rezim === r.id ? "var(--modra)" : "var(--linka)",
+              borderWidth: rezim === r.id ? 2 : 1,
+              background:
+                rezim === r.id ? "var(--modra-svetla)" : "var(--panel)",
+            }}
+          >
+            <p className="text-sm font-semibold">{r.nazev}</p>
+            <p className="mt-0.5 text-xs" style={{ color: "var(--tlumeny)" }}>
+              {r.popis}
+            </p>
+          </button>
+        ))}
+      </div>
+
+      <nav className="mt-4 flex flex-wrap gap-2">
+        {kroky.map((k) => {
           const aktivni = k.id === krok;
           // Balíček zůstává přístupný i po odebrání zdrojů — hotové soubory
           // v něm nemají zmizet jen proto, že uživatel začal další dokument.
@@ -232,19 +325,34 @@ export default function Domu() {
             }
           />
         )}
+        {krok === 7 && (
+          <KrokDavka
+            pocetZdroju={zdroje.length}
+            profil={profil}
+            bezi={bezi}
+            prubeh={prubeh}
+            vysledky={davka}
+            onSpustit={spustitDavku}
+            onZastavit={() => {
+              zastavitRef.current = true;
+            }}
+            onPridatDoBalicku={pridatVysledekDoBalicku}
+            jeVBalicku={(v) => balicek.some((b) => b.zdrojId === v.zdrojId)}
+          />
+        )}
       </section>
 
       <div className="mt-8 flex items-center justify-between">
         <Tlacitko
-          onClick={() => setKrok((k) => Math.max(1, k - 1))}
-          disabled={krok === 1}
+          onClick={() => setKrok(kroky[Math.max(0, poradiKroku - 1)].id)}
+          disabled={poradiKroku === 0}
         >
           Zpět
         </Tlacitko>
-        {krok < KROKY.length && (
+        {poradiKroku < kroky.length - 1 && (
           <Tlacitko
             varianta="hlavni"
-            onClick={() => setKrok((k) => k + 1)}
+            onClick={() => setKrok(kroky[poradiKroku + 1].id)}
             disabled={stranky.length === 0}
             title={stranky.length ? undefined : "Nejdřív nahraj soubor"}
           >

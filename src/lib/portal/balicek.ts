@@ -1,11 +1,17 @@
 import JSZip from "jszip";
 import { STRUKTURA_DOKUMENTACE, type SlozkaId } from "./spec";
+import { bezpecnyNazev, unikatniNazev } from "./nazvy";
 
 export interface PolozkaBalicku {
   id: string;
   nazev: string;
   bytes: Uint8Array;
   slozka: SlozkaId;
+  /**
+   * Ze kterého zdroje položka vznikla. Podle názvu se rozlišovat nedá —
+   * v dávce se běžně sejde víc stejně pojmenovaných výkresů.
+   */
+  zdrojId?: string;
   /** Výstup neprošel kontrolou jako PDF/A-3 — portál ho odmítne. */
   jePdfa3: boolean;
 }
@@ -39,8 +45,11 @@ export async function sestavitZip(
       continue;
     }
 
+    // Názvy hlídáme v rámci každé části zvlášť — dva stejně pojmenované
+    // výkresy ve stejné složce by se jinak přepsaly.
+    const pouzite = new Set<string>();
     for (const p of patrici) {
-      slozka.file(bezpecnyNazev(p.nazev), p.bytes);
+      slozka.file(unikatniNazev(p.nazev, pouzite), p.bytes);
     }
   }
 
@@ -53,10 +62,6 @@ export async function sestavitZip(
     compressionOptions: { level: 1 },
   });
   return blob;
-}
-
-function bezpecnyNazev(n: string): string {
-  return n.replace(/[/\\:*?"<>|]/g, "_");
 }
 
 function prehled(polozky: PolozkaBalicku[]): string {

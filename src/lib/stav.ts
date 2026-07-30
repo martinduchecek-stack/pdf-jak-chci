@@ -1,25 +1,34 @@
-import type { Stranka, Zdroj } from "./pdf/compose";
-import type { Rozbor } from "./pdf/inspect";
-import type { ProfilId } from "./gs/profiles";
+/** Jeden dokument skládaný ze zdrojů, nebo dávka převedená po jednom. */
+export type Rezim = "dokument" | "davka";
 
-export const KROKY = [
+export interface Krok {
+  id: number;
+  nazev: string;
+  popis: string;
+}
+
+const KROKY_DOKUMENT: Krok[] = [
   { id: 1, nazev: "Zdroje", popis: "Nahraj PDF nebo obrázky" },
-  { id: 2, nazev: "Stránky", popis: "Pořadí, otočení, mazání" },
+  { id: 2, nazev: "Stránky", popis: "Pořadí, otočení, ořez" },
   { id: 3, nazev: "Formát listu", popis: "Papír a měřítko" },
   { id: 4, nazev: "Cílový formát", popis: "PDF/A-3 pro portál" },
   { id: 5, nazev: "Kontrola", popis: "Před podáním" },
   { id: 6, nazev: "Balíček", popis: "Struktura A–E pro portál" },
-] as const;
+];
 
-export interface StavAplikace {
-  krok: number;
-  zdroje: Zdroj[];
-  stranky: Stranka[];
-  profil: ProfilId;
-  /** Rozbor vstupních souborů, klíčem je id zdroje. */
-  rozbory: Record<string, Rozbor>;
-  /** Hotový výstup. */
-  vystup: { bytes: Uint8Array; nazev: string; rozbor: Rozbor } | null;
+/**
+ * V dávce se stránky nepřeskládávají ani nemění formát listu — každý soubor
+ * projde převodem sám za sebe, takže kroky 2 a 3 nedávají smysl.
+ */
+const KROKY_DAVKA: Krok[] = [
+  { id: 1, nazev: "Zdroje", popis: "Nahraj klidně desítky PDF" },
+  { id: 4, nazev: "Cílový formát", popis: "PDF/A-3 pro portál" },
+  { id: 7, nazev: "Převod dávky", popis: "Každý soubor zvlášť" },
+  { id: 6, nazev: "Balíček", popis: "Struktura A–E pro portál" },
+];
+
+export function krokyProRezim(rezim: Rezim): Krok[] {
+  return rezim === "davka" ? KROKY_DAVKA : KROKY_DOKUMENT;
 }
 
 let citac = 0;
