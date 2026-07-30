@@ -28,6 +28,7 @@ import { rozeber, type Rozbor } from "@/lib/pdf/inspect";
 import { zapomenout } from "@/lib/pdf/render";
 import { predehrat, prevest } from "@/lib/gs/client";
 import { profilById, type ProfilId } from "@/lib/gs/profiles";
+import { ZDROJOVY_KOD } from "@/lib/odkazy";
 
 export default function Domu() {
   // Dávka je výchozí: na portál se výkresy vkládají jednotlivě, takže
@@ -386,6 +387,18 @@ export default function Domu() {
           >
             Podmínky použití
           </Link>
+        </p>
+        <p className="mt-1">
+          Svobodný software pod licencí AGPL-3.0.{" "}
+          <a
+            href={ZDROJOVY_KOD}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline"
+            style={{ color: "var(--modra)" }}
+          >
+            Zdrojový kód
+          </a>
         </p>
       </footer>
     </main>

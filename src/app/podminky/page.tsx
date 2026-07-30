@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { UCET_PRO_DAR, ZDROJOVY_KOD } from "@/lib/odkazy";
 
 export const metadata: Metadata = {
   title: "Podmínky použití — Pdf jak chci",
@@ -127,12 +128,30 @@ export default function Podminky() {
           </p>
         </Sekce>
 
-        <Sekce cislo="6" nazev="Použitý software">
+        <Sekce cislo="6" nazev="Licence a zdrojový kód">
+          <p>
+            Copyright ©&nbsp;2026 Martin Ducheček. Aplikace je svobodný software
+            šířený pod licencí <strong>GNU Affero General Public License
+            v3</strong> nebo pozdější. Smíš ji používat, upravovat i dál šířit
+            za podmínek této licence.
+          </p>
+          <p>
+            <a
+              href={ZDROJOVY_KOD}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: "var(--modra)" }}
+            >
+              Zdrojový kód aplikace na GitHubu
+            </a>{" "}
+            — zveřejněný mimo jiné proto, že to AGPL v čl. 13 u programů
+            provozovaných po síti vyžaduje.
+          </p>
           <p>Aplikace stojí na těchto komponentách:</p>
           <ul>
             <li>
               <strong>Ghostscript / GhostPDL</strong> — převod do PDF/A,
-              licence AGPL-3.0-or-later, ©&nbsp;Artifex Software, Inc.{" "}
+              AGPL-3.0-or-later, ©&nbsp;Artifex Software, Inc.{" "}
               <a
                 href="https://github.com/okathira/ghostpdl-wasm"
                 target="_blank"
@@ -151,7 +170,38 @@ export default function Podminky() {
           </ul>
         </Sekce>
 
-        <Sekce cislo="7" nazev="Změny podmínek">
+        <Sekce cislo="7" nazev="Dobrovolný příspěvek">
+          <p>
+            Aplikace je a zůstane zdarma. Není za ni požadována žádná platba,
+            není nijak omezená a nemá placenou verzi.
+          </p>
+          <p>
+            Pokud ti pomohla a chceš autora podpořit, můžeš mu poslat dobrovolný
+            příspěvek. Platí u něj následující:
+          </p>
+          <ul>
+            <li>
+              je zcela <strong>dobrovolný</strong> a není protiplněním za
+              aplikaci ani za žádnou službu,
+            </li>
+            <li>
+              <strong>nezakládá žádný nárok</strong> — ani na podporu, opravu
+              chyby, novou funkci, dostupnost aplikace či přednostní jednání,
+            </li>
+            <li>
+              <strong>nemění nic na vyloučení záruky</strong> podle článků 2
+              až 4 těchto podmínek,
+            </li>
+            <li>je nevratný.</li>
+          </ul>
+          {UCET_PRO_DAR && (
+            <p>
+              Bankovní spojení: <strong>{UCET_PRO_DAR}</strong>
+            </p>
+          )}
+        </Sekce>
+
+        <Sekce cislo="8" nazev="Změny podmínek">
           <p>
             Tyto podmínky může autor kdykoli změnit. Rozhodné je znění zveřejněné
             na této adrese v okamžiku použití aplikace.

@@ -69,3 +69,38 @@ z `node_modules` do `public/`.
 ```bash
 npm run build
 ```
+
+## Licence
+
+Copyright © 2026 Martin Ducheček
+
+Tento program je svobodný software: můžete jej šířit a upravovat podle podmínek
+**GNU Affero General Public License**, verze 3 nebo (podle vaší volby) jakékoli
+pozdější verze, vydané Free Software Foundation. Úplné znění licence je
+v souboru [LICENSE](LICENSE).
+
+Program je šířen v naději, že bude užitečný, avšak **BEZ JAKÉKOLI ZÁRUKY** —
+neposkytují se ani odvozené záruky prodejnosti nebo vhodnosti pro určitý účel.
+
+### Proč AGPL
+
+Aplikace používá **Ghostscript / GhostPDL** (© Artifex Software, Inc.), který je
+šířen pod AGPL-3.0-or-later. Ghostscript se do prohlížeče načítá jako WASM modul
+a tvoří s aplikací jeden celek, proto se copyleft vztahuje i na ni.
+
+AGPL v § 13 navíc vyžaduje, aby zdrojový kód byl dostupný i těm, kdo s programem
+pracují po síti — proto je tento repozitář veřejný a odkaz na něj je přímo
+v aplikaci.
+
+Zdrojový kód použitého WASM buildu Ghostscriptu:
+https://github.com/okathira/ghostpdl-wasm
+
+### Ostatní komponenty
+
+| Komponenta | Licence |
+|---|---|
+| pdf-lib | MIT |
+| pdf.js (pdfjs-dist) | Apache-2.0 |
+| JSZip | MIT |
+| dnd-kit | MIT |
+| Next.js, React | MIT |
