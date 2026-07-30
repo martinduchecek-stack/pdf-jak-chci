@@ -399,6 +399,14 @@ export default function Domu() {
           >
             Zdrojový kód
           </a>
+          {" · "}
+          <Link
+            href="/podminky#dar"
+            className="underline"
+            style={{ color: "var(--modra)" }}
+          >
+            Podpořit dobrovolným příspěvkem
+          </Link>
         </p>
       </footer>
     </main>

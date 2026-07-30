@@ -3,7 +3,16 @@ export const ZDROJOVY_KOD =
   "https://github.com/martinduchecek-stack/pdf-jak-chci";
 
 /**
- * Bankovní spojení pro dobrovolný příspěvek. Dokud je prázdné, sekce o daru
- * se nezobrazí — ať na webu nesvítí nefunkční výzva k platbě.
+ * Údaje pro dobrovolný příspěvek.
+ *
+ * QR kód se generuje skriptem `node scripts/qr-dar.mjs` do `public/qr-dar.svg`;
+ * po změně čísla účtu je nutné ho spustit znovu, jinak by QR ukazoval na starý
+ * účet.
  */
-export const UCET_PRO_DAR = "";
+export const DAR = {
+  prijemce: "Ing. Martin Ducheček",
+  ico: "75171147",
+  ucet: "1793428035/3030",
+  iban: "CZ87 3030 0000 0017 9342 8035",
+  qr: "/qr-dar.svg",
+} as const;

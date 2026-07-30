@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { UCET_PRO_DAR, ZDROJOVY_KOD } from "@/lib/odkazy";
+import { DAR, ZDROJOVY_KOD } from "@/lib/odkazy";
 
 export const metadata: Metadata = {
   title: "Podmínky použití — Pdf jak chci",
@@ -150,8 +150,9 @@ export default function Podminky() {
           <p>Aplikace stojí na těchto komponentách:</p>
           <ul>
             <li>
-              <strong>Ghostscript / GhostPDL</strong> — převod do PDF/A,
-              AGPL-3.0-or-later, ©&nbsp;Artifex Software, Inc.{" "}
+              <strong>Ghostscript / GhostPDL</strong>{" "}
+              — převod do PDF/A, AGPL-3.0-or-later, ©&nbsp;Artifex Software,
+              Inc.{" "}
               <a
                 href="https://github.com/okathira/ghostpdl-wasm"
                 target="_blank"
@@ -170,35 +171,92 @@ export default function Podminky() {
           </ul>
         </Sekce>
 
-        <Sekce cislo="7" nazev="Dobrovolný příspěvek">
+        <Sekce cislo="7" nazev="Dobrovolný příspěvek" id="dar">
           <p>
             Aplikace je a zůstane zdarma. Není za ni požadována žádná platba,
-            není nijak omezená a nemá placenou verzi.
+            není nijak omezená a nemá placenou verzi. Pokud ti pomohla a chceš
+            autora podpořit, můžeš poslat dobrovolný příspěvek — ale nic tě
+            k tomu nenutí a nepřijdeš tím k ničemu navíc.
           </p>
-          <p>
-            Pokud ti pomohla a chceš autora podpořit, můžeš mu poslat dobrovolný
-            příspěvek. Platí u něj následující:
-          </p>
+
+          <div
+            className="mt-4 flex flex-col gap-5 rounded-lg border p-4 sm:flex-row sm:items-center"
+            style={{ borderColor: "var(--linka)" }}
+          >
+            <div className="shrink-0 self-center">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={DAR.qr}
+                alt={`QR platba na účet ${DAR.ucet}`}
+                width={150}
+                height={150}
+                className="rounded bg-white p-2"
+              />
+              <p className="mt-1 text-center text-[11px]">QR platba</p>
+            </div>
+            <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-xs">
+              <dt className="font-medium" style={{ color: "var(--text)" }}>
+                Příjemce
+              </dt>
+              <dd>
+                {DAR.prijemce}, IČO {DAR.ico}
+              </dd>
+              <dt className="font-medium" style={{ color: "var(--text)" }}>
+                Účet
+              </dt>
+              <dd>
+                <strong style={{ color: "var(--text)" }}>{DAR.ucet}</strong>
+              </dd>
+              <dt className="font-medium" style={{ color: "var(--text)" }}>
+                IBAN
+              </dt>
+              <dd>{DAR.iban}</dd>
+              <dt className="font-medium" style={{ color: "var(--text)" }}>
+                Částka
+              </dt>
+              <dd>libovolná, podle vlastního uvážení</dd>
+            </dl>
+          </div>
+
+          <p className="mt-4">Právní povaha příspěvku:</p>
           <ul>
             <li>
-              je zcela <strong>dobrovolný</strong> a není protiplněním za
-              aplikaci ani za žádnou službu,
+              Jde o <strong>dar podle § 2055 a násl. občanského zákoníku</strong>,
+              tedy bezúplatné plnění. <strong>Není protiplněním</strong> za
+              aplikaci ani za jakoukoli službu.
             </li>
             <li>
-              <strong>nezakládá žádný nárok</strong> — ani na podporu, opravu
-              chyby, novou funkci, dostupnost aplikace či přednostní jednání,
+              <strong>Nezakládá žádný nárok</strong> — ani na podporu, opravu
+              chyby, novou funkci, dostupnost aplikace či přednostní jednání.
             </li>
             <li>
-              <strong>nemění nic na vyloučení záruky</strong> podle článků 2
-              až 4 těchto podmínek,
+              <strong>Nemění nic na vyloučení záruky</strong> podle článků 2
+              až 4 těchto podmínek.
             </li>
-            <li>je nevratný.</li>
+            <li>
+              Je <strong>nevratný</strong>. Dar lze podle § 2072 obč. zák.
+              odvolat jen ze zákonných důvodů (nouze dárce, nevděk obdarovaného).
+            </li>
+            <li>
+              {/* Mezeru je nutné zapsat výslovně — kompilátor ji z textu
+                  obsahujícího entitu &nbsp; jinak odstraní. */}
+              <strong>Nejde o veřejnou sbírku</strong>{" "}
+              podle zákona č.&nbsp;117/2001 Sb. — tu mohou pořádat pouze
+              právnické osoby.
+              Příspěvek je darem konkrétní fyzické osobě uvedené výše.
+            </li>
+            <li>
+              <strong>Není odčitatelnou položkou</strong> od základu daně.
+              Odpočet podle § 15 odst. 1, resp. § 20 odst. 8 zákona o daních
+              z příjmů se vztahuje jen na dary na zákonem vyjmenované účely
+              a příjemce, což tento případ nesplňuje.
+            </li>
+            <li>
+              O dárci se nesbírají žádné údaje nad rámec toho, co je uvedeno
+              v bankovním převodu. Do zprávy pro příjemce prosím neuváděj
+              osobní ani citlivé údaje.
+            </li>
           </ul>
-          {UCET_PRO_DAR && (
-            <p>
-              Bankovní spojení: <strong>{UCET_PRO_DAR}</strong>
-            </p>
-          )}
         </Sekce>
 
         <Sekce cislo="8" nazev="Změny podmínek">
@@ -223,14 +281,16 @@ export default function Podminky() {
 function Sekce({
   cislo,
   nazev,
+  id,
   children,
 }: {
   cislo: string;
   nazev: string;
+  id?: string;
   children: React.ReactNode;
 }) {
   return (
-    <section>
+    <section id={id} className="scroll-mt-6">
       <h2 className="text-base font-semibold">
         {cislo}. {nazev}
       </h2>
