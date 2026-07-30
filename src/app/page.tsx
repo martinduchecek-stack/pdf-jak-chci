@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { KrokZdroje } from "@/components/KrokZdroje";
 import { KrokStranky } from "@/components/KrokStranky";
 import { KrokFormat } from "@/components/KrokFormat";
@@ -374,6 +375,17 @@ export default function Domu() {
           Kontrola v této aplikaci pokrývá nejčastější příčiny odmítnutí, ale
           není to plná validace podle ISO 19005. Definitivní verdikt dá veraPDF
           nebo samotný portál.
+        </p>
+        <p className="mt-3">
+          Aplikace je zdarma a poskytovaná bez záruky — výstup si před podáním
+          vždy zkontroluj.{" "}
+          <Link
+            href="/podminky"
+            className="underline"
+            style={{ color: "var(--modra)" }}
+          >
+            Podmínky použití
+          </Link>
         </p>
       </footer>
     </main>
