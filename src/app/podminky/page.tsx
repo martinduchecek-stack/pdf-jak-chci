@@ -194,28 +194,25 @@ export default function Podminky() {
               />
               <p className="mt-1 text-center text-[11px]">QR platba</p>
             </div>
-            <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-xs">
-              <dt className="font-medium" style={{ color: "var(--text)" }}>
-                Příjemce
-              </dt>
-              <dd>
-                {DAR.prijemce}, IČO {DAR.ico}
-              </dd>
-              <dt className="font-medium" style={{ color: "var(--text)" }}>
-                Účet
-              </dt>
-              <dd>
-                <strong style={{ color: "var(--text)" }}>{DAR.ucet}</strong>
-              </dd>
-              <dt className="font-medium" style={{ color: "var(--text)" }}>
-                IBAN
-              </dt>
-              <dd>{DAR.iban}</dd>
-              <dt className="font-medium" style={{ color: "var(--text)" }}>
-                Částka
-              </dt>
-              <dd>libovolná, podle vlastního uvážení</dd>
-            </dl>
+            <div>
+              <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-xs">
+                <dt className="font-medium" style={{ color: "var(--text)" }}>
+                  Účet
+                </dt>
+                <dd>
+                  <strong style={{ color: "var(--text)" }}>{DAR.ucet}</strong>
+                </dd>
+                <dt className="font-medium" style={{ color: "var(--text)" }}>
+                  IBAN
+                </dt>
+                <dd>{DAR.iban}</dd>
+                <dt className="font-medium" style={{ color: "var(--text)" }}>
+                  Částka
+                </dt>
+                <dd>libovolná, podle vlastního uvážení</dd>
+              </dl>
+              <p className="mt-3 text-[11px]">Příjemce: {DAR.prijemce}</p>
+            </div>
           </div>
 
           <p className="mt-4">Právní povaha příspěvku:</p>
