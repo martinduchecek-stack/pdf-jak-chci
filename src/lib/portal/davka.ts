@@ -3,6 +3,7 @@ import { prevest } from "@/lib/gs/client";
 import type { Profil } from "@/lib/gs/profiles";
 import { rozeber, type Rozbor } from "@/lib/pdf/inspect";
 import { slozit, type Zdroj } from "@/lib/pdf/compose";
+import { opravitPoPrevodu } from "@/lib/pdf/pdfaOprava";
 import { noveId } from "@/lib/stav";
 import { unikatniNazev } from "./nazvy";
 
@@ -46,11 +47,12 @@ export async function prevestDavku(
       const vstup =
         z.typ === "obrazek" ? await obrazekNaPdf(z) : z.bytes;
       const { data, ms } = await prevest(vstup, profil);
+      const { bytes } = await opravitPoPrevodu(data);
       vysledky.push({
         zdrojId: z.id,
         nazev,
-        bytes: data,
-        rozbor: await rozeber({ name: nazev, bytes: data }),
+        bytes,
+        rozbor: await rozeber({ name: nazev, bytes }),
         ms,
       });
     } catch (e) {

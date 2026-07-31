@@ -74,6 +74,11 @@ export default function Podminky() {
             Definitivní verdikt dá validátor jako veraPDF nebo samotný portál.
           </p>
           <p>
+            Převod je při vývoji ověřován právě validátorem veraPDF, ale to
+            neznamená záruku, že normě vyhoví každý možný vstupní soubor.
+            U dokumentů, na kterých závisí lhůta, se vyplatí výstup ověřit.
+          </p>
+          <p>
             Uživatel je povinen si každý výstup před podáním otevřít a
             zkontrolovat — zejména čitelnost, úplnost, rozměry listu a měřítko.
             U výkresů platí, že ořez a změna formátu papíru mohou měřítko změnit;

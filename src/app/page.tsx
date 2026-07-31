@@ -25,6 +25,7 @@ import {
   type Zdroj,
 } from "@/lib/pdf/compose";
 import { rozeber, type Rozbor } from "@/lib/pdf/inspect";
+import { opravitPoPrevodu } from "@/lib/pdf/pdfaOprava";
 import { zapomenout } from "@/lib/pdf/render";
 import { predehrat, prevest } from "@/lib/gs/client";
 import { profilById, type ProfilId } from "@/lib/gs/profiles";
@@ -99,15 +100,16 @@ export default function Domu() {
       // přepsal MediaBox u stránek, kterých se ořez netýká.
       const jeOrez = stranky.some((s) => s.orez);
       const { data } = await prevest(slozeno.bytes, p, { orez: jeOrez });
+      const { bytes: hotove } = await opravitPoPrevodu(data);
 
       const zaklad = zdroje[0]?.nazev.replace(/\.pdf$/i, "") ?? "dokumentace";
       const pripona = p.pdfaPart ? `_PDFA-${p.pdfaPart}b` : "_upraveno";
       const nazev = `${zaklad}${pripona}.pdf`;
 
       setVystup({
-        bytes: data,
+        bytes: hotove,
         nazev,
-        rozbor: await rozeber({ name: nazev, bytes: data }),
+        rozbor: await rozeber({ name: nazev, bytes: hotove }),
       });
     } catch (e) {
       setChyba(e instanceof Error ? e.message : String(e));

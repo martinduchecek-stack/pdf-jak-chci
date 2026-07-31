@@ -32,6 +32,33 @@ Limity portálu (Uživatelská dokumentace Portálu stavební správy v1.13):
 - dokumentace: 10 GB celkem, max. 50 000 souborů, limit na jeden soubor není
 - struktura A–E je pevná a nahrává se **vždy celá**
 
+## Ověření podle ISO 19005
+
+Kontrola zabudovaná v aplikaci je rychlá heuristika. Referenční validátor je
+**veraPDF** — ten rozhoduje, jestli soubor normě opravdu vyhovuje.
+
+```bash
+brew install verapdf
+verapdf --format text --flavour 3b soubor.pdf
+```
+
+`PASS` znamená vyhovuje, `FAIL` nevyhovuje. Podrobnosti o tom, které pravidlo
+selhalo:
+
+```bash
+verapdf --format mrr --flavour 3b soubor.pdf
+```
+
+### Na co se naráží u výkresů z Archicadu
+
+Samotný Ghostscript nestačí. Výstup selhával na **klauzuli 6.9**: konfigurační
+slovník vrstev (`/OCProperties` → `/D`, případně položky `/Configs`) musí mít
+klíč `/Name`. Archicad ho nezapisuje a Ghostscript ho propouští beze změny.
+
+Řeší to `src/lib/pdf/pdfaOprava.ts`, které klíč po převodu doplní. Ověřeno:
+bez doplnění `FAIL`, s doplněním `PASS`, vrstvy zachovány a vykreslená stránka
+bitově shodná. Soubory bez vrstev se nepřepisují vůbec.
+
 ## Co aplikace neřeší
 
 - **Autorizační razítko.** Elektronickou PD je nutné opatřit kvalifikovaným
